@@ -1,0 +1,14 @@
+{
+  "name": "job-scorecard-tool",
+  "version": "1.0.0",
+  "description": "AI-powered job description scorecard generator",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "start-backend": "cd backend && npm start",
+    "start-frontend": "cd frontend && npm start",
+    "dev": "npm run start-backend & npm run start-frontend"
+  },
+  "keywords": ["recruiting", "scorecard", "ai", "openai"],
+  "author": "",
+  "license": "ISC"
+}
