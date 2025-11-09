@@ -1,3 +1,27 @@
+// top of file
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+app.use(cors({ origin: '*' }));           // or lock to your Netlify domain later
+app.use(express.json({ limit: '10mb' })); // adjust if needed
+
+// quick health check
+app.get('/health', (req, res) => res.send('ok'));
+
+// ... your routes here ...
+
+// error handler (so 500s show a useful message)
+app.use((err, req, res, next) => {
+  console.error('🔥 API error:', err);
+  res.status(500).json({ error: err?.message || 'Internal Server Error' });
+});
+
+// use Render's assigned port OR default to 3001 locally
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`API listening on :${PORT}`));
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
