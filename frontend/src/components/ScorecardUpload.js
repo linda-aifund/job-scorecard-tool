@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+// Supabase configuration
+const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://sbrbtjsbwewppiaqrnrd.supabase.co';
+const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNicmJ0anNid2V3cHBpYXFybnJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNTExMjQsImV4cCI6MjA3ODcyNzEyNH0.Ho5mjPpKGq8b9CS2gh-CXQUQV_d-WY5b-_GmOVTd8TI';
+
 function ScorecardUpload({ onAnalysisComplete, setLoading, setError }) {
   const [inputMethod, setInputMethod] = useState('pdf'); // 'pdf' or 'url'
   const [url, setUrl] = useState('');
@@ -18,6 +22,16 @@ function ScorecardUpload({ onAnalysisComplete, setLoading, setError }) {
     }
   };
 
+  // Convert file to base64
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -31,14 +45,23 @@ function ScorecardUpload({ onAnalysisComplete, setLoading, setError }) {
           return;
         }
 
-        const formData = new FormData();
-        formData.append('file', selectedFile);
+        // Convert PDF to base64
+        const pdfBase64 = await fileToBase64(selectedFile);
 
-        const response = await axios.post('/api/analyze/pdf', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
+        // Call Supabase Edge Function
+        const response = await axios.post(
+          `${SUPABASE_URL}/functions/v1/analyze-job-pdf`,
+          {
+            pdfBase64: pdfBase64,
+            fileName: selectedFile.name
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
           }
-        });
+        );
 
         onAnalysisComplete(response.data);
       } else {
@@ -48,14 +71,25 @@ function ScorecardUpload({ onAnalysisComplete, setLoading, setError }) {
           return;
         }
 
-        const response = await axios.post('/api/analyze/url', { url });
+        // Call Supabase Edge Function
+        const response = await axios.post(
+          `${SUPABASE_URL}/functions/v1/analyze-job-url`,
+          { url },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          }
+        );
+
         onAnalysisComplete(response.data);
       }
     } catch (error) {
       console.error('Analysis error:', error);
       setError(
-        error.response?.data?.details ||
         error.response?.data?.error ||
+        error.response?.data?.details ||
         error.message ||
         'Failed to analyze job description'
       );

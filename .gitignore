@@ -1,22 +1,12 @@
 # Environment and secrets
-env.config
 .env
 .env.local
 .env.*.local
-
-# Generated files
-frontend/env.js
-.mcp.json
+backend/.env
 
 # Dependencies
 node_modules/
 .npm/
-
-# Supabase
-.supabase/
-supabase/.branches
-supabase/.temp
-supabase/migrations/
 
 # IDE
 .vscode/
@@ -44,24 +34,7 @@ dist/
 build/
 .cache/
 
-# Cloudflare
-.wrangler/
-wrangler.toml
-
-# LiveKit Agent (project-specific)
-livekit-agent/livekit.toml
-livekit-agent/.env.secrets
-
 # Temporary files
 *.tmp
 *.temp
 .tmp/
-.temp/node_modules/
-.env
-backend/.env
-frontend/.env
-*.log
-.DS_Store
-build/
-dist/
-coverage/
